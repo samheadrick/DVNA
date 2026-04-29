@@ -1,0 +1,19 @@
+name: Security Scan
+on:
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+  actions: read
+  security-events: write
+  pull-requests: write
+
+jobs:
+  security-scan:
+    uses: ArmisSecurity/armis-cli/.github/workflows/reusable-security-scan.yml@main
+    with:
+      fail-on: CRITICAL,HIGH
+    secrets:
+      api-token: ${{ secrets.ARMIS_API_TOKEN }}
+      tenant-id: ${{ secrets.ARMIS_TENANT_ID }}
