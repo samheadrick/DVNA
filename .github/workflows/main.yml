@@ -2,7 +2,7 @@ name: Security Scan
 on: [push, pull_request]
 jobs:
   security-scan:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, local-armis]
     permissions:
       contents: read
       actions: read
