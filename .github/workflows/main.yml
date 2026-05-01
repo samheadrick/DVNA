@@ -11,7 +11,13 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Armis CLI
         run: |
-          /Users/sheadrick/Documents/Projects/armis-cli-main/bin/armis-cli
+          /Users/sheadrick/go/bin/dlv exec /Users/sheadrick/Documents/Projects/armis-cli-main/bin/armis-cli-debug \
+          --listen=127.0.0.1:40000 \
+          --api-version=2 \
+          --accept-multiclient \
+          --continue=false \
+          -- scan repo . \
+          --format sarif 
       - name: Scan Repository
         env:
           ARMIS_CLIENT_ID: ${{ secrets.ARMIS_CLIENT_ID }}
