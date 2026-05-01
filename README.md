@@ -1,7 +1,6 @@
 ![DVNA logo](https://github.com/quantumfoam/DVNA/blob/master/public/images/dvna.png)
 
 ## Beta!
-
 Under active development. **Contributors wanted for UX/UI, bug fixes, and documentation.**
 - - -
 
