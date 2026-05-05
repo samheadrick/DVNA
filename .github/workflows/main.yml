@@ -2,7 +2,7 @@ name: Security Scan
 on: [push, pull_request]
 jobs:
   security-scan:
-    runs-on: [self-hosted, local-armis]
+    runs-on: [self-hosted, laptop-armis]
     permissions:
       contents: read
       actions: read
@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Armis CLI
         run: |
-          /Users/sheadrick/go/bin/dlv exec /Users/sheadrick/Documents/Projects/armis-cli-main/bin/armis-cli-debug \
+          dlv exec /Users/sheadrick/repos/armis-cli/bin/armis-cli-debug \
           --listen=127.0.0.1:40000 \
           --api-version=2 \
           --accept-multiclient \
@@ -23,7 +23,7 @@ jobs:
           ARMIS_CLIENT_ID: ${{ secrets.ARMIS_CLIENT_ID }}
           ARMIS_CLIENT_SECRET: ${{ secrets.ARMIS_CLIENT_SECRET }}
         run: |
-         /Users/sheadrick/go/bin/dlv exec /Users/sheadrick/Documents/Projects/armis-cli-main/bin/armis-cli-debug \
+          dlv exec /Users/sheadrick/repos/armis-cli/bin/armis-cli-debug \
           --listen=127.0.0.1:40000 \
           --api-version=2 \
           --accept-multiclient \
