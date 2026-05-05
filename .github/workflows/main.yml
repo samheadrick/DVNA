@@ -12,11 +12,9 @@ jobs:
       - name: Install Armis CLI
         run: |
           /Users/sheadrick/repos/armis-cli/bin/armis-cli-debug \
-          --listen=127.0.0.1:40000 \
           --api-version=2 \
-          --accept-multiclient \
           --continue=false \
-          -- scan repo . \
+          --scan repo . \
           --format sarif 
       - name: Scan Repository
         env:
@@ -24,11 +22,9 @@ jobs:
           ARMIS_CLIENT_SECRET: ${{ secrets.ARMIS_CLIENT_SECRET }}
         run: |
           /Users/sheadrick/repos/armis-cli/bin/armis-cli-debug \
-          --listen=127.0.0.1:40000 \
           --api-version=2 \
-          --accept-multiclient \
           --continue=false \
-          -- scan repo . \
+          --scan repo . \
           --format sarif \
             > results.sarif
       - uses: github/codeql-action/upload-sarif@v4
