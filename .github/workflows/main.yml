@@ -15,6 +15,7 @@ jobs:
           ARMIS_CLIENT_SECRET: ${{ secrets.ARMIS_CLIENT_SECRET }}
         run: |
           /opt/homebrew/bin/dlv exec /Users/sheadrick/repos/armis-cli/bin/armis-cli-debug \
+          --headless \
           --listen=127.0.0.1:40000 \
           --api-version=2 \
           --accept-multiclient=false \
