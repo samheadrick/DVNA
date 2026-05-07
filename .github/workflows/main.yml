@@ -11,9 +11,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Armis CLI
         run: |
-          /Users/sheadrick/repos/armis-cli/bin/armis-cli-debug \
-          --scan repo . \
-          --format sarif 
+          /Users/sheadrick/repos/armis-cli/bin/armis-cli-debug
       - name: Scan Repository
         env:
           ARMIS_CLIENT_ID: ${{ secrets.ARMIS_CLIENT_ID }}
