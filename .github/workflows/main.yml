@@ -18,8 +18,6 @@ jobs:
           --headless \
           --listen=127.0.0.1:40000 \
           --api-version=2 \
-          --accept-multiclient=false \
-          --continue=true 
           -- scan repo . \
           --format sarif > results.sarif
 
