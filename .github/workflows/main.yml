@@ -16,8 +16,7 @@ jobs:
           --listen=127.0.0.1:40000 \
           --api-version=2 \
           --accept-multiclient \
-          --continue=false \
-          --no-progress
+          --continue=false 
       - name: Scan Repository
         env:
           ARMIS_CLIENT_ID: ${{ secrets.ARMIS_CLIENT_ID }}
