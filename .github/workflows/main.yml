@@ -8,7 +8,6 @@ jobs:
       actions: read
       security-events: write
     steps:
-      - uses: actions/checkout@v4
       - name: Scan Repository
         env:
           ARMIS_CLIENT_ID: ${{ secrets.ARMIS_CLIENT_ID }}
