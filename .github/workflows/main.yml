@@ -14,9 +14,7 @@ jobs:
           ARMIS_CLIENT_ID: ${{ secrets.ARMIS_CLIENT_ID }}
           ARMIS_CLIENT_SECRET: ${{ secrets.ARMIS_CLIENT_SECRET }}
         run: |
-          /Users/sheadrick/Documents/Projects/armis-cli-main/bin/AAAAArmis-cli-debug \
-          scan repo . \
-          --format sarif > results.sarif
+          echo "HELLO"
 
       - uses: github/codeql-action/upload-sarif@v4
         if: always()
