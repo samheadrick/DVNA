@@ -2,13 +2,21 @@ name: Security Scan
 on: [push, pull_request]
 jobs:
   security-scan:
-    runs-on: [self-hosted, laptop]
+    runs-on: [self-hosted, laptop-armis]
     permissions:
       contents: read
       actions: read
       security-events: write
     steps:
       - uses: actions/checkout@v4
+      - name: Install Armis CLI
+        run: |
+          /opt/homebrew/bin/dlv exec /Users/sheadrick/repos/armis-cli/bin/armis-cli-debug \
+          --headless \
+          --listen=127.0.0.1:40000 \
+          --api-version=2 \
+          --accept-multiclient \
+          --continue=false 
       - name: Scan Repository
         env:
           ARMIS_CLIENT_ID: ${{ secrets.ARMIS_CLIENT_ID }}
