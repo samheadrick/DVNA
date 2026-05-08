@@ -14,11 +14,8 @@ jobs:
           ARMIS_CLIENT_ID: ${{ secrets.ARMIS_CLIENT_ID }}
           ARMIS_CLIENT_SECRET: ${{ secrets.ARMIS_CLIENT_SECRET }}
         run: |
-          /Users/sheadrick/go/bin/dlv exec /Users/sheadrick/Documents/Projects/armis-cli-main/bin/armis-cli-debug \
-          --headless \
-          --listen=127.0.0.1:40000 \
-          --api-version=2 \
-          -- scan repo /Users/sheadrick/Documents/Projects/clirepos/armis-appsec-sample \
+          /Users/sheadrick/Documents/Projects/armis-cli-main/bin/armis-cli-debug \
+          scan repo /Users/sheadrick/Documents/Projects/clirepos/armis-appsec-sample \
           --format sarif > /Users/sheadrick/Documents/Projects/clirepos/results.sarif
       - uses: github/codeql-action/upload-sarif@v4
         if: always()
