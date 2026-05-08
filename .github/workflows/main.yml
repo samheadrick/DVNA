@@ -16,6 +16,7 @@ jobs:
         run: |
           /Users/sheadrick/go/bin/dlv exec /Users/sheadrick/Documents/Projects/armis-cli-main/bin/armis-cli-debug \
           --headless \
+          --log-dest=/tmp/dlv.log \
           --listen=127.0.0.1:40000 \
           --api-version=2 \
           -- scan repo /Users/sheadrick/Documents/Projects/clirepos/armis-appsec-sample \
