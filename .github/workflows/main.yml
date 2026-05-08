@@ -25,3 +25,141 @@ jobs:
         if: always()
         with:
           sarif_file: /Users/sheadrick/Documents/Projects/clirepos/results.sarif
+      - name: Post PR Comment with Results
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const fs = require('fs');
+
+            // Read SARIF results
+            const sarif = JSON.parse(fs.readFileSync('/Users/sheadrick/Documents/Projects/clirepos/armis-results.sarif', 'utf8'));
+            const results = sarif.runs?.[0]?.results || [];
+
+            // Count by severity - read from properties.severity if available
+            const counts = { CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0, INFO: 0 };
+            for (const r of results) {
+              // Prefer properties.severity (set by armis-cli), fallback to level mapping
+              const severity = r.properties?.severity || {
+                'error': 'HIGH',
+                'warning': 'MEDIUM',
+                'note': 'LOW',
+                'none': 'INFO'
+              }[r.level || 'warning'] || 'INFO';
+              counts[severity]++;
+            }
+            const total = results.length;
+
+            // Build comment body
+            const marker = '<!-- armis-security-scan -->';
+            const status = counts.CRITICAL > 0 ? '🔴 CRITICAL issues found' :
+                           counts.HIGH > 0 ? '🟠 HIGH issues found' :
+                           total > 0 ? '🟡 Issues found' : '✅ No issues';
+
+            const workflowRef = process.env.GITHUB_WORKFLOW_REF || '';
+            const ref = workflowRef.split('@')[1] || 'main';
+            const logoLight = `https://raw.githubusercontent.com/ArmisSecurity/armis-cli/${ref}/docs/assets/appsec-logo-light.png`;
+            const logoDark = `https://raw.githubusercontent.com/ArmisSecurity/armis-cli/${ref}/docs/assets/appsec-logo-dark.png`;
+            // GitHub theme-aware images with height constraint (24px to match heading text)
+            const logo = `<img alt="Armis AppSec" src="${logoLight}#gh-dark-mode-only" height="24"><img alt="Armis AppSec" src="${logoDark}#gh-light-mode-only" height="24">`;
+
+            let body = `${marker}\n## ${logo}&nbsp;Security Scan Results\n\n**${status}**\n`;
+            if (total > 0) {
+              body += `\n| Severity | Count |\n|----------|-------|\n`;
+              if (counts.CRITICAL > 0) body += `| 🔴 CRITICAL | ${counts.CRITICAL} |\n`;
+              if (counts.HIGH > 0) body += `| 🟠 HIGH | ${counts.HIGH} |\n`;
+              if (counts.MEDIUM > 0) body += `| 🟡 MEDIUM | ${counts.MEDIUM} |\n`;
+              if (counts.LOW > 0) body += `| 🔵 LOW | ${counts.LOW} |\n`;
+              if (counts.INFO > 0) body += `| ⚪ INFO | ${counts.INFO} |\n`;
+              body += `\n**Total: ${total}**\n`;
+            }
+
+            // Build detailed findings section
+            if (total > 0) {
+              body += `\n<details><summary>View all ${total} findings</summary>\n\n`;
+
+              // Group results by severity
+              const severityOrder = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'INFO'];
+              const severityEmoji = { CRITICAL: '🔴', HIGH: '🟠', MEDIUM: '🟡', LOW: '🔵', INFO: '⚪' };
+
+              for (const severity of severityOrder) {
+                const severityResults = results.filter(r =>
+                  (r.properties?.severity || 'INFO') === severity
+                );
+
+                if (severityResults.length > 0) {
+                  body += `### ${severityEmoji[severity]} ${severity} (${severityResults.length})\n\n`;
+
+                  for (const r of severityResults) {
+                    const file = r.locations?.[0]?.physicalLocation?.artifactLocation?.uri || '';
+                    const line = r.locations?.[0]?.physicalLocation?.region?.startLine || '';
+                    const location = file ? (line ? `${file}:${line}` : file) : 'Unknown location';
+
+                    // Parse title and description from message
+                    const msgParts = (r.message?.text || '').split(': ');
+                    const title = msgParts[0] || r.ruleId;
+                    const description = msgParts.slice(1).join(': ') || '';
+
+                    body += `<details><summary><code>${r.ruleId}</code> - ${title}</summary>\n\n`;
+                    body += `**Location:** \`${location}\`\n\n`;
+
+                    if (description) {
+                      body += `${description}\n\n`;
+                    }
+
+                    // Code snippet
+                    const snippet = r.properties?.codeSnippet;
+                    if (snippet) {
+                      body += '```\n' + snippet + '\n```\n\n';
+                    }
+
+                    // CVEs and CWEs
+                    const cves = r.properties?.cves || [];
+                    const cwes = r.properties?.cwes || [];
+                    if (cves.length > 0) {
+                      body += `**CVEs:** ${cves.join(', ')}\n\n`;
+                    }
+                    if (cwes.length > 0) {
+                      body += `**CWEs:** ${cwes.join(', ')}\n\n`;
+                    }
+
+                    // Package info
+                    const pkg = r.properties?.package;
+                    const version = r.properties?.version;
+                    const fixVersion = r.properties?.fixVersion;
+                    if (pkg) {
+                      let pkgInfo = `**Package:** ${pkg}`;
+                      if (version) pkgInfo += ` (${version})`;
+                      if (fixVersion) pkgInfo += ` → Fix: ${fixVersion}`;
+                      body += pkgInfo + '\n\n';
+                    }
+
+                    body += `</details>\n\n`;
+                  }
+                }
+              }
+
+              body += `</details>`;
+            }
+
+            // Find and update existing comment, or create new
+            const { data: comments } = await github.rest.issues.listComments({
+              ...context.repo,
+              issue_number: context.issue.number
+            });
+            const existing = comments.find(c => c.body.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                ...context.repo,
+                comment_id: existing.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                ...context.repo,
+                issue_number: context.issue.number,
+                body
+              });
+            }
+
