@@ -21,7 +21,7 @@ jobs:
           --api-version=2 \
           -- scan repo ${{ vars.DVNA_REPO }} \
           --format sarif \
-          --fail-on '' > /${{ vars.DVNA_REPO }}/results.sarif
+          --fail-on '' > ${{ vars.DVNA_REPO }}/results.sarif
       - uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
