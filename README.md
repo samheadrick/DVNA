@@ -4,7 +4,7 @@
 
 Under active development. **Contributors wanted for UX/UI, bug fixes, and documentation.**
 - - -
-
+df
 Damn Vulnerable Node Application (DVNA) is a Node.js web application that is damn vulnerable. Its intended purpose is to teach secure coding concepts to web developers who use Node, and to explore web application vulnerabilities in a controlled class environment or to serve as a cyber range for capture the flag events. It's loaded with **common web vulnerabilities** and **various levels of complexity.**
 - - -
 
